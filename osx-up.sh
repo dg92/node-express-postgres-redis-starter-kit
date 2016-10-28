@@ -4,40 +4,40 @@ echo '******** Welcome to the OSX Setup **********
 echo 'This will install Brew, Nodejs(latest), Postgres(latest), Redis for your beautiful Mac for now and later project
 ---------------------------------------------------'
 
-echo 'Installing Brew for you
----------------------------------------------------'
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" -y
-echo 'Lets update your Brew now
----------------------------------------------------'
-brew update -y
-echo 'Is your brew need doctor so lets take him
----------------------------------------------------'
-brew doctor -y
-echo '******** Brew installed successfully *********'
-
-echo 'Installing Node now
----------------------------------------------------'
-brew install node -y
-brew update -y
-brew doctor -y
-echo '******** Node in your service ********'
-
-echo 'Installing Postgres now
----------------------------------------------------'
-brew install postgresql -y
-initdb /usr/local/var/postgres -E utf8
-mkdir -p ~/Library/LaunchAgents
-cp /usr/local/Cellar/postgresql/9.2.1/homebrew.mxcl.postgresql.plist ~/Library/LaunchAgents/
-launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
-createdb dev
-echo '******** Postgres installed successfully and a db dev is created *********'
-
-echo 'Installing Redis now
----------------------------------------------------'
-brew install redis -y
-brew update -y
-brew doctor -y
-echo '******** Redis installed ********'
+# echo 'Installing Brew for you
+# ---------------------------------------------------'
+# /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" -y
+# echo 'Lets update your Brew now
+# ---------------------------------------------------'
+# brew update -y
+# echo 'Is your brew need doctor so lets take him
+# ---------------------------------------------------'
+# brew doctor -y
+# echo '******** Brew installed successfully *********'
+#
+# echo 'Installing Node now
+# ---------------------------------------------------'
+# brew install node -y
+# brew update -y
+# brew doctor -y
+# echo '******** Node in your service ********'
+#
+# echo 'Installing Postgres now
+# ---------------------------------------------------'
+# brew install postgresql -y
+# initdb /usr/local/var/postgres -E utf8
+# mkdir -p ~/Library/LaunchAgents
+# cp /usr/local/Cellar/postgresql/9.2.1/homebrew.mxcl.postgresql.plist ~/Library/LaunchAgents/
+# launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
+# createdb dev
+# echo '******** Postgres installed successfully and a db dev is created *********'
+#
+# echo 'Installing Redis now
+# ---------------------------------------------------'
+# brew install redis -y
+# brew update -y
+# brew doctor -y
+# echo '******** Redis installed ********'
 
 echo '******** lets name your project now ********'
 echo -n "Enter your project name > "
@@ -68,7 +68,7 @@ npm install --save-dev babel-cli@6.10.1 babel-core@6.10.4 babel-eslint@4.1.6 bab
 npm install --save-dev babel-preset-es2015@6.9.0 babel-preset-stage-0@6.5.0 eslint@1.10.3 eslint-plugin-babel@3.0.0 eslint-plugin-react@3.12.0 supertest@1.2.0
 echo 'and some more dependencies
 ---------------------------------------------------'
-npm install --save bcrypt body-parser cors errorhandler express lodash moment rand-token request-promise tabel pg
+npm install --save bcrypt body-parser cors errorhandler express lodash moment rand-token request-promise tabel@1.0.1 pg
 echo '******** Dependencies installed successfully *********'
 
 echo 'creating .babelrc'
