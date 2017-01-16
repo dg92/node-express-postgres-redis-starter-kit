@@ -19,8 +19,9 @@ This is a starter kit that help you get started with node, express, postgresql, 
 # How to uses it
 1. Clone this repository
 2. cd node-express-postgres-redis-starter-kit
-3. in terminal type ./osx-up.sh
-4. follow terminal
+3. (OPTIONAL) If you need to setup (Node, redis, postgresql) then run ./osx-setup.sh
+3. In terminal type ./osx-up.sh
+4. Follow terminal
 
 Same Architecture Can expand to have a queue and a worker system to use that feature email me ideepak.jsd@gmail.com
 
