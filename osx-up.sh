@@ -27,7 +27,7 @@ npm install --save-dev babel-cli@6.10.1 babel-core@6.10.4 babel-eslint@4.1.6 bab
 npm install --save-dev babel-preset-es2015@6.9.0 babel-preset-stage-0@6.5.0 eslint@1.10.3 eslint-plugin-babel@3.0.0 eslint-plugin-react@3.12.0 supertest@1.2.0
 echo 'and some more dependencies
 ---------------------------------------------------'
-npm install --save bcrypt body-parser cors errorhandler express lodash moment rand-token request-promise tabel@1.0.1 pg
+npm install --save bcrypt body-parser cors errorhandler express lodash moment rand-token request-promise tabel pg
 echo '******** Dependencies installed successfully *********'
 
 echo 'creating .babelrc'
@@ -309,22 +309,23 @@ export default {
 echo 'Creating migration.babel.stub'
 touch migration.babel.stub
 echo "
-function up(knex, Promise) {
-  <% if (d.tableName) { %>
-  return knex.schema.createTable(""<%= d.tableName %>"", (t) => {
-    t.increments();
-    t.timestamp();
-  });
-  <% } %>
-}
+  function up(knex, Promise) {
+    <% if (d.tableName) { %>
+    return knex.schema.createTable(""<%= d.tableName %>"", (t) => {
+      t.increments();
+      t.timestamp();
+    });
+    <% } %>
+  }
 
-function down(knex, Promise) {
-  <% if (d.tableName) { %>
-  return knex.schema.dropTable(""<%= d.tableName %>"");
-  <% } %>
-}
+  function down(knex, Promise) {
+    <% if (d.tableName) { %>
+    return knex.schema.dropTable(""<%= d.tableName %>"");
+    <% } %>
+  }
 
-module.exports = {up, down};
+  module.exports = {up, down};
+
 " >> migration.babel.stub
 
 mkdir app
@@ -425,7 +426,7 @@ export default async function run(...args) {
   await migrator.mount({
     devDir: './migrations',
     distDir: './migrations',
-    getArgs: () => args,
+    args,
     stub: `${process.cwd()}/migration.babel.stub`
   });
 }
@@ -868,7 +869,7 @@ if (require.main === module) {
 echo "********** go in app/tasks/migrate and follow these steps
 1. Replace stub: with stub: $ {process.cwd()}/migration.babel.stub
 2. Remove space in $ {
-3. Add `` from $ to migration.babel.stub
+3. Add double quote from $ to migration.babel.stub end
 **********"
 
 
@@ -897,7 +898,7 @@ echo 'Copy paste this in package.json remove the old one
 echo -n "****** Press enter when you have done that"
 read ok
 
-echo ">>>>Go and create a user table by typing npm run task migrate make users<<<<"
+echo ">>>>Go and create database dev and then a user table by typing npm run task migrate make users<<<<"
 echo -n "****** Press enter when you have done that"
 read ok
 
