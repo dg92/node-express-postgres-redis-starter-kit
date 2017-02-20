@@ -1,0 +1,16 @@
+function up(knex, Promise) {
+  <% if (d.tableName) { %>
+  return knex.schema.createTable("<%= d.tableName %>", (t) => {
+    t.increments();
+    t.timestamp();
+  });
+  <% } %>
+}
+
+function down(knex, Promise) {
+  <% if (d.tableName) { %>
+  return knex.schema.dropTable("<%= d.tableName %>");
+  <% } %>
+}
+
+module.exports = {up, down};

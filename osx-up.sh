@@ -21,6 +21,8 @@ npm-debug.log
 .DS_Store
 " >> .gitignore
 
+cp ../migration.babel.stub migration.babel.stub
+
 echo 'Now let us install some dev dependencies
 ---------------------------------------------------'
 npm install --save-dev babel-cli@6.10.1 babel-core@6.10.4 babel-eslint@4.1.6 babel-plugin-add-module-exports@0.2.1 babel-polyfill@6.9.1 nodemon@1.8.1
@@ -305,28 +307,6 @@ export default {
   }
 };
 " >> config.js
-
-echo 'Creating migration.babel.stub'
-touch migration.babel.stub
-echo "
-  function up(knex, Promise) {
-    <% if (d.tableName) { %>
-    return knex.schema.createTable(""<%= d.tableName %>"", (t) => {
-      t.increments();
-      t.timestamp();
-    });
-    <% } %>
-  }
-
-  function down(knex, Promise) {
-    <% if (d.tableName) { %>
-    return knex.schema.dropTable(""<%= d.tableName %>"");
-    <% } %>
-  }
-
-  module.exports = {up, down};
-
-" >> migration.babel.stub
 
 mkdir app
 cd app
@@ -866,24 +846,7 @@ if (require.main === module) {
 }
 " >> server.js
 
-echo "********** go in app/tasks/migrate and follow these steps
-1. Replace stub: with stub: $ {process.cwd()}/migration.babel.stub
-2. Remove space in $ {
-3. Add double quote from $ to migration.babel.stub end
-**********"
-
-
-echo -n "****** Press enter when you have done that"
-read ok
-
-echo "********** go in migration.babel.stud at root of project and
- Add <%= d.tableName %> in double quote
-**********"
-
-echo -n "****** Press enter when you have done that"
-read ok
-
-echo 'Copy paste this in package.json remove the old one
+echo 'Copy paste this in package.json remove the old scripts
 "scripts": {
   "task": "NODE_PATH=. babel-node ./app/cli.js",
   "server": "NODE_PATH=. babel-node ./app/server.js",
