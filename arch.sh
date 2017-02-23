@@ -385,7 +385,7 @@ export function isUsableObject(val) {
 echo '********** Util folder setup completed **********'
 cd ../tasks
 mkdir seeds
-touch index.js migrate.js seed.js dev.js
+touch index.js seed.js dev.js
 
 echo "
 import dev from './dev';
@@ -399,18 +399,7 @@ export default {
 };
 " >> index.js
 
-echo "
-import {migrator} from 'app/orm';
-
-export default async function run(...args) {
-  await migrator.mount({
-    devDir: './migrations',
-    distDir: './migrations',
-    args,
-    stub: `${process.cwd()}/migration.babel.stub`
-  });
-}
-" >> migrate.js
+cp ../../../migrate.js migrate.js
 
 echo "
 import seeds from './seeds';
@@ -563,9 +552,27 @@ cd tables
 touch index.js
 
 echo "
+import users from './users';
 export default function loadTables(orm) {
+  users(orm);
 }
 " >> index.js
+
+touch users.js
+
+echo "
+export default function loadTables(orm) {
+  orm.defineTable({
+    name: 'users',
+
+    props: {
+      autoId: true,
+      timestamps: true
+    }
+  })
+}
+" >> users.js
+
 echo "Orm setup successfully"
 
 cd ../../http
@@ -623,10 +630,13 @@ touch index.js
 
 echo "
 import express from 'express';
-import {omit} from 'lodash';
+import {isString, omit, isUndefined} from 'lodash';
+import bcrypt from 'bcrypt';
 
 import {table} from 'app/orm';
 import {login, logout} from 'app/auth';
+import {Validator} from 'app/reducer';
+import {isEmail} from 'app/util';
 
 import {
   loggedIn,
@@ -640,10 +650,9 @@ app.post('/login', loggedOut, async (req, res) => {
   const {email, password} = req.body;
   const {success, token, user} = await login(email, password);
   if (success) {
-    const teams = (await table('users')
+    const teams = await table('users')
       .where({id: user.id})
-      .eagerLoad('teams')
-      .first()).teams
+      .first()
     ;
     return res.status(200).send({msg: 'logged in', token, user: omit(user, ['password']), teams});
   } else {
@@ -653,10 +662,58 @@ app.post('/login', loggedOut, async (req, res) => {
 
 app.post('/logout', loggedIn, async (req, res) => {
   const authKey = getAuthKeyFromRequest(req);
-
   await logout(authKey);
-
   return res.send({msg: 'logged out'});
+});
+
+async function alreadySignedUp(req, res, next) {
+  if (!req.body.email || req.body.email.length === 0) {
+    return next();
+  }
+  const existing = await table('users')
+    .where({email: req.body.email})
+    .all()
+  ;
+  if(existing.length > 0) {
+    return res.status(409).send({email: ['Email already taken.']});
+  } else {
+    return next();
+  }
+}
+
+const signUpValidator = new Validator({
+  ['email'](email) {
+    return (!isUndefined(email) && isEmail(email) && isString(email)) ? null : 'Email is invalid.';
+  },
+  ['name'](name) {
+    return (!isUndefined(name) && name.length > 0 && isString(name)) ? null : 'Name is invalid.';
+  },
+  ['password'](password) {
+    if(!isUndefined(password) && isString(password) && password.length > 4) {
+      return null;
+    } else {
+      return 'Password should be atleast 5 characters long.';
+    }
+  }
+});
+
+app.post('/signup', alreadySignedUp, async (req, res) => {
+  const errors = await signUpValidator.errors(req.body);
+  if (errors) {
+    return res.status(400).send(errors);
+  }
+  const {email, password, name} = req.body;
+
+  const user = await table('users').insert({
+    email: email.trim(),
+    password: await new Promise((resolve) => bcrypt.hash(password, 10, (_, hash) => resolve(hash))),
+    name: name.trim()
+  });
+  if (user) {
+    return res.status(200).send({msg: 'Signup success.', user: omit(user, ['password'])});
+  } else {
+    return res.status(400).send({msg: 'Signup failed.'});
+  }
 });
 
 export default app;
@@ -797,7 +854,7 @@ import tasks from './tasks';
 async function run(taskName, ...args) {
   const taskNames = Object.keys(tasks);
   if (taskNames.indexOf(taskName) === -1) {
-    console.log('paste here a command to show tasks')
+    console.log('Tasks are', taskNames)
     return Promise.resolve(null);
   }
 
@@ -861,7 +918,7 @@ echo 'Copy paste this in package.json remove the old scripts
 echo -n "****** Press enter when you have done that"
 read ok
 
-echo ">>>>Go and create database dev and then a user table by typing npm run task migrate make users<<<<"
+echo ">>>>Go and create database dev and then open terminal and reach to project directory and type : npm run task migrate make CreateUsersTable <<<<"
 echo -n "****** Press enter when you have done that"
 read ok
 
@@ -882,14 +939,13 @@ function up(knex, Promise) {
 function down(knex, Promise) {
   return knex.schema.dropTable('users');
 }
-
 module.exports = {up, down};
 "
 echo -n "****** Press enter when you have done that"
 read ok
 
-echo ">>>>>after that is done type npm run task migrate latest<<<<<"
+echo ">>>> Open the terminal again and reach to the project and then do : npm run task migrate latest <<<<<"
 
 echo "**************** successfully setup *****************"
 
-echo "go inside project and type npm run nodemon:server once started Lets go to browser and type localhost:3000"
+echo "Go inside project and type npm run nodemon:server once started Lets go to browser and type localhost:3000"
